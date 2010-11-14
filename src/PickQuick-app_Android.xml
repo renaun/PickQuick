@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<application xmlns="http://ns.adobe.com/air/application/2.5">
+<id>com.renaun.PickQuick</id>
+<filename>PickQuick</filename>
+<name>PickQuick</name>
+<versionNumber>1.0.3</versionNumber>
+<initialWindow>
+	<content>PickQuick.swf</content>
+	<visible>true</visible>
+	<fullScreen>true</fullScreen>
+	<aspectRatio>landscape</aspectRatio>
+</initialWindow>
+<supportedProfiles>mobileDevice desktop</supportedProfiles>
+<android>
+<manifestAdditions>
+<![CDATA[
+<manifest>
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.CAMERA" />
+</manifest>
+]]>
+</manifestAdditions>
+</android>
+
+<icon>
+	<image48x48>icon48.png</image48x48>
+	<image72x72>icon72.png</image72x72>
+</icon>
+</application>
