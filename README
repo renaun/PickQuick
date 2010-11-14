@@ -1,0 +1,9 @@
+PickQuick is a ActionScript 3.0 demo game.
+
+Author: Renaun Erickson
+
+It uses the same code for packaging on AIR for Android, Packager for iPhone (PFI), 
+and Web/Desktop. The application uses the KaigamesLibrary which includes some 
+classes used across many of my projects.
+
+License - see LICENSE file include in this repo
