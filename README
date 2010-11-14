@@ -6,4 +6,6 @@ It uses the same code for packaging on AIR for Android, Packager for iPhone (PFI
 and Web/Desktop. The application uses the KaigamesLibrary which includes some 
 classes used across many of my projects.
 
+Dependencies - github.com/renaun/KaigamesLibrary
+
 License - see LICENSE file include in this repo
