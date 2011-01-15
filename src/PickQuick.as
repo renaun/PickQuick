@@ -47,12 +47,18 @@ public class PickQuick extends Sprite
 	
 	public function PickQuick()
 	{
+		addEventListener(Event.ADDED_TO_STAGE, addedToStageHandler);
+	}
+	
+	private function addedToStageHandler(event:Event):void
+	{
 		stage.scaleMode = StageScaleMode.NO_SCALE;
 		stage.align = StageAlign.TOP_LEFT;
-		if (Capabilities.screenDPI > 96)
-			stage.addEventListener(Event.DEACTIVATE, deactivateHandler);
+		//if (Capabilities.screenDPI > 96)
+		//	stage.addEventListener(Event.DEACTIVATE, deactivateHandler);
 		ScreenUtils.setScaleMatrix(stage);
 		frameBrain = new FrameBrain(stage, init);
+		
 	}
 	
 	protected var frameBrain:FrameBrain;
@@ -64,11 +70,12 @@ public class PickQuick extends Sprite
 		boardBrain.createChildren(stage);
 		frameBrain.addExecutable(boardBrain);
 	}
-	
+	/*
 	protected function deactivateHandler(event:Event):void
 	{
 		boardBrain.destroy();
 		NativeApplication.nativeApplication.exit();
 	}
+	*/
 }
 }

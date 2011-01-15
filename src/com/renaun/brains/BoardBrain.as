@@ -66,6 +66,7 @@ package com.renaun.brains
 	import flash.display.Shape;
 	import flash.display.Stage;
 	import flash.events.Event;
+	import flash.events.KeyboardEvent;
 	import flash.events.MouseEvent;
 	import flash.events.TimerEvent;
 	import flash.geom.Matrix;
@@ -77,6 +78,7 @@ package com.renaun.brains
 	import flash.text.TextFieldAutoSize;
 	import flash.text.TextFormat;
 	import flash.text.TextFormatAlign;
+	import flash.ui.Keyboard;
 	import flash.ui.Mouse;
 	import flash.utils.Dictionary;
 	import flash.utils.Timer;
@@ -134,6 +136,7 @@ package com.renaun.brains
 		protected var hasSelection:Boolean = false;
 		protected var hasPreviousSelection:Boolean = false;
 		protected var hasHotSeat:Boolean = false;
+		protected var hasKeyboardSelection:Boolean = false;
 		
 		protected var boxWidth:int = 140;// 126 + 14
 		protected var boxHeight:int = 120;// 106 + 14
@@ -147,6 +150,7 @@ package com.renaun.brains
 			this.container = container;
 			// Setup Mouse Clicks
 			this.container.addEventListener(MouseEvent.MOUSE_DOWN, mouseHandler);
+			this.container.addEventListener(KeyboardEvent.KEY_UP, keyUpHandler);
 			scoreTimer = new Timer(8000, 1);
 			scoreTimer.addEventListener(TimerEvent.TIMER_COMPLETE, calculateScore);
 			
@@ -473,6 +477,11 @@ package com.renaun.brains
 			userBoxes.push(playerBox);
 			
 			setState(BoardBrain.STATE_DEFAULT);
+			
+			// TODO remove right now on TV start join right away
+			setState(BoardBrain.STATE_JOINING);
+			multicastConn.connect("PickQuick", "game");
+			multicastConn.addCommandFactory(new TextCommandCreator());
 		}
 		
 		//----------------------------------
@@ -550,6 +559,7 @@ package com.renaun.brains
 						playerBox.hotSeat = true;
 						hasHotSeat = true;
 						setGlows(redGlows, playerBox);
+						setGlows(greenGlows, playerBox);
 					}
 				}
 				if (playerBox.hotSeat)
@@ -593,6 +603,7 @@ package com.renaun.brains
 					playerBox.hotSeat = true;
 					hasHotSeat = true;
 					setGlows(redGlows, playerBox);
+					setGlows(greenGlows, playerBox);
 				}
 				if (playerBox.hotSeat)
 					sendMessage(-1, playerBox.timestamp, 0);
@@ -642,7 +653,10 @@ package com.renaun.brains
 					userBoxes[index].y = startY + (boxHeight*j);
 					userBoxes[index].x = startX + (d * boxWidth);
 					if (userBoxes[index].hotSeat)
+					{
 						setGlows(redGlows, userBoxes[index]);
+						setGlows(greenGlows, userBoxes[index]);
+					}
 
 					index++;
 					d++
@@ -774,6 +788,7 @@ package com.renaun.brains
 			playerScoreSelectionTime = -1;
 			if (state == BoardBrain.STATE_DEFAULT)
 			{
+				hasKeyboardSelection = false;
 				currentScore = 0;
 				textScore.visible = false;
 				multicastConn.destroy();
@@ -787,6 +802,7 @@ package com.renaun.brains
 			}
 			else if (state == BoardBrain.STATE_WAITING_FOR_USERS)
 			{
+				hasKeyboardSelection = false;
 				currentScore = 0;
 				textScore.text = "0";
 				textScore.visible = false;
@@ -813,6 +829,7 @@ package com.renaun.brains
 			}
 			else if (state == BoardBrain.STATE_SELECT)
 			{
+				hasKeyboardSelection = false;
 				textScore.visible = true;
 				textJoin.text = "";
 				textJoin.visible = false;
@@ -886,6 +903,7 @@ package com.renaun.brains
 							userBoxes[i].hotSeat = true;
 							hasHotSeat = true;
 							setGlows(redGlows, userBoxes[i]);
+							setGlows(greenGlows, userBoxes[i]);
 						}
 					}
 					
@@ -952,6 +970,17 @@ package com.renaun.brains
 				redGlows[8].visible = (hasHotSeat && f == 8); 
 				redGlows[9].visible = (hasHotSeat && f == 9);
 				
+				greenGlows[0].visible = (hasKeyboardSelection && f == 0); 
+				greenGlows[1].visible = (hasKeyboardSelection && f == 1); 
+				greenGlows[2].visible = (hasKeyboardSelection && f == 2); 
+				greenGlows[3].visible = (hasKeyboardSelection && f == 3); 
+				greenGlows[4].visible = (hasKeyboardSelection && f == 4); 
+				greenGlows[5].visible = (hasKeyboardSelection && f == 5); 
+				greenGlows[6].visible = (hasKeyboardSelection && f == 6); 
+				greenGlows[7].visible = (hasKeyboardSelection && f == 7); 
+				greenGlows[8].visible = (hasKeyboardSelection && f == 8); 
+				greenGlows[9].visible = (hasKeyboardSelection && f == 9);
+				
 				bitmapRed.visible = playerBox.hotSeat;
 				
 				if (playerScoreSelectionTime > 1000
@@ -977,6 +1006,66 @@ package com.renaun.brains
 		//----------------------------------
 		//  Interactive Methods
 		//----------------------------------
+		
+		private var currentBoxSelectedIndex:int = 0
+		protected function keyUpHandler(event:KeyboardEvent):void
+		{
+			textJoin.visible = true;
+			
+			event.stopImmediatePropagation();
+			if (currentState == BoardBrain.STATE_SELECT)
+			{				
+				if (event.keyCode == Keyboard.LEFT)
+					currentBoxSelectedIndex--;
+				if (event.keyCode == Keyboard.RIGHT)
+					currentBoxSelectedIndex++;
+				if (currentBoxSelectedIndex < 0)
+					currentBoxSelectedIndex = 0
+				if (currentBoxSelectedIndex >= userBoxes.length)
+					currentBoxSelectedIndex = userBoxes.length-1;
+				if (userBoxes[currentBoxSelectedIndex].hotSeat
+					|| userBoxes[currentBoxSelectedIndex].y < 50)
+				{
+					
+					hasKeyboardSelection = false;
+					return;
+				}
+				
+				if (event.keyCode == Keyboard.LEFT
+					|| event.keyCode == Keyboard.RIGHT)
+				{
+					hasKeyboardSelection = true;
+					//textJoin.text = ("here2: " + event.type + "kc: " + event.keyCode + " - " + Keyboard.LEFT + " - " + currentBoxSelectedIndex + " - " + userBoxes.length);
+					setGlows(greenGlows, userBoxes[currentBoxSelectedIndex]);
+				}
+				
+				if (event.keyCode == Keyboard.ENTER)
+				{
+					//textJoin.text = ("here: " + event.type + "kc: " + event.keyCode + " - " + Keyboard.LEFT + " - " + currentBoxSelectedIndex);
+					currentSelection = userBoxes[currentBoxSelectedIndex];
+					currentSelection.selected = true;
+					
+					if (currentSelection == previousSelection)
+						hasPreviousSelection = false;
+					
+					hasSelection = true; // Gets Cleared with state changes to Select again
+					
+					setState(BoardBrain.STATE_SCORING);
+					if (playerBox.hotSeat)
+					{
+						playerScoreSelectionTime = getTimer();
+						playerBox.scoreSelection = currentSelection.timestamp;
+						recordScores(playerBox.timestamp, playerBox.scoreSelection);
+					}
+					else
+					{
+						
+						sendMessage(currentSelection.timestamp, -1, 0);
+					}
+				}
+					
+			}
+		}
 		
 		public function mouseHandler(event:MouseEvent):void
 		{
