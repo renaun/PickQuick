@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<application xmlns="http://ns.adobe.com/air/application/2.0">
+<application xmlns="http://ns.adobe.com/air/application/2.6">
 <id>com.renaun.PickQuick</id>
 <filename>PickQuick</filename>
 <name>PickQuick</name>
-<version>1.0.3</version>
+<versionNumber>1.0.3</versionNumber>
 <initialWindow>
 	<content>PickQuick.swf</content>
 	<visible>true</visible>
@@ -14,7 +14,7 @@
 <icon>
 	<image29x29>icon29.png</image29x29>
 	<image57x57>icon57.png</image57x57>
-	<image512x512>icon512.png</image512x512>
+	<image114x114>icon114.png</image114x114>
 </icon>
 
 <iPhone>
@@ -27,6 +27,6 @@
     </array>
   ]]>
   </InfoAdditions>
+  <requestedDisplayResolution>high</requestedDisplayResolution>
   </iPhone>
-
 </application>
